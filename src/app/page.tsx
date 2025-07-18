@@ -6,21 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
-      <header className="px-4 lg:px-6 h-14 flex items-center bg-background/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 border-b">
-        <Link href="/" className="flex items-center justify-center" prefetch={false}>
-          <Car className="h-6 w-6 text-primary" />
-          <span className="ml-2 text-xl font-bold font-headline">RoadRemote</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link href="#features" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            Features
-          </Link>
-          <Link href="#roles" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            Get Started
-          </Link>
-        </nav>
-      </header>
-
       <main className="flex-1">
         <section id="roles" className="w-full py-20 md:py-24 lg:py-32">
           <div className="container mx-auto px-4 md:px-6">
