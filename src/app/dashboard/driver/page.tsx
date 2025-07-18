@@ -6,18 +6,50 @@ import { HeartHandshake, Wrench } from 'lucide-react';
 import { mockVolunteers } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { findGarages, FindGaragesOutput } from '@/ai/flows/find-garages-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { StatusTracker } from '@/components/status-tracker';
 
+type RequestStatus = 'idle' | 'requested' | 'available' | 'confirmed';
+
 export default function DriverDashboard() {
   const [garages, setGarages] = useState<FindGaragesOutput | null>(null);
   const [loadingGarages, setLoadingGarages] = useState(false);
   const [helpRequested, setHelpRequested] = useState(false);
-  const [helperAssigned, setHelperAssigned] = useState(false);
+  const [helperAssigned, setHelperAssigned] = useState<string | null>(null);
+  const [requestStatuses, setRequestStatuses] = useState<Record<string, RequestStatus>>({});
+
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!helpRequested) return;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          getGarages(`${latitude}, ${longitude}`);
+        },
+        () => {
+          toast({
+            variant: 'destructive',
+            title: 'Location Error',
+            description: 'Could not get your location. Please enable location services.',
+          });
+          getGarages('Mountain View, CA');
+        }
+      );
+    } else {
+       toast({
+        variant: 'destructive',
+        title: 'Location Error',
+        description: 'Geolocation is not supported by this browser.',
+      });
+       getGarages('Mountain View, CA');
+    }
+  }, [helpRequested]);
 
   async function getGarages(location: string) {
     try {
@@ -42,38 +74,55 @@ export default function DriverDashboard() {
         title: 'Request Sent',
         description: 'Finding nearby help for you.',
     });
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          getGarages(`${latitude}, ${longitude}`);
-        },
-        () => {
-          toast({
-            variant: 'destructive',
-            title: 'Location Error',
-            description: 'Could not get your location. Please enable location services.',
-          });
-          getGarages('Mountain View, CA');
-        }
-      );
-    } else {
-       toast({
-        variant: 'destructive',
-        title: 'Location Error',
-        description: 'Geolocation is not supported by this browser.',
-      });
-       getGarages('Mountain View, CA');
-    }
   };
-  
-  const handleSelectHelper = (name: string) => {
-    setHelperAssigned(true);
+
+  const handleRequestHelp = (id: string, name: string) => {
+    setRequestStatuses(prev => ({ ...prev, [id]: 'requested' }));
     toast({
-      title: 'Helper Requested',
-      description: `Your request has been sent to ${name}. They will be in touch shortly.`,
+      title: 'Request Sent',
+      description: `Your request has been sent to ${name}.`,
+    });
+
+    // Simulate helper responding after a delay
+    const delay = Math.random() * (7000 - 3000) + 3000; // 3-7 seconds
+    setTimeout(() => {
+      // Don't update if a helper has already been confirmed
+      if (!helperAssigned) {
+         setRequestStatuses(prev => ({ ...prev, [id]: 'available' }));
+      }
+    }, delay);
+  };
+
+  const handleConfirmHelper = (id: string, name: string) => {
+    setHelperAssigned(id);
+    setRequestStatuses(prev => ({ ...prev, [id]: 'confirmed' }));
+    toast({
+      title: 'Helper Confirmed!',
+      description: `You are now connected with ${name}. They will be in touch shortly.`,
     });
   };
+  
+  const getButton = (id: string, name: string) => {
+    const status = requestStatuses[id] || 'idle';
+    
+    if (helperAssigned && helperAssigned !== id) {
+       return <Button size="sm" variant="outline" disabled>Unavailable</Button>;
+    }
+
+    switch (status) {
+      case 'idle':
+        return <Button size="sm" variant="outline" onClick={() => handleRequestHelp(id, name)}>Request</Button>;
+      case 'requested':
+        return <Button size="sm" variant="outline" disabled>Requested...</Button>;
+      case 'available':
+        return <Button size="sm" onClick={() => handleConfirmHelper(id, name)}>Accept</Button>;
+      case 'confirmed':
+        return <Button size="sm" variant="success" disabled>Confirmed</Button>;
+      default:
+        return null;
+    }
+  };
+
 
   return (
     <div className="grid lg:grid-cols-3 gap-8">
@@ -83,7 +132,7 @@ export default function DriverDashboard() {
             <CardHeader>
               <CardTitle>Having Car Trouble?</CardTitle>
               <CardDescription className="text-primary-foreground/80">
-                You're in the right place. Find volunteers and professional garages below to get the help you need.
+                You're in the right place. Click below to find nearby help.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -124,9 +173,7 @@ export default function DriverDashboard() {
                               ))}
                             </div>
                           </div>
-                          <Button size="sm" variant="outline" onClick={() => handleSelectHelper(v.name)} disabled={helperAssigned}>
-                            Request
-                          </Button>
+                         {getButton(v.id, v.name)}
                         </div>
                         <Separator className="my-4" />
                       </div>
@@ -164,9 +211,7 @@ export default function DriverDashboard() {
                               <p className="font-semibold">{g.name}</p>
                               <p className="text-sm text-muted-foreground">{g.address}</p>
                             </div>
-                            <Button size="sm" variant="outline" onClick={() => handleSelectHelper(g.name)} disabled={helperAssigned}>
-                              Request
-                            </Button>
+                            {getButton(`garage-${index}`, g.name)}
                           </div>
                           {index < (garages.garages?.length ?? 0) - 1 && <Separator className="my-4" />}
                         </div>
