@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPlaceholder } from '@/components/map-placeholder';
 import { ChatWindow } from '@/components/chat-window';
+import { StatusTracker } from '@/components/status-tracker';
 import { Car, Wrench, HeartHandshake } from 'lucide-react';
 import { mockVolunteers } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function DriverDashboard() {
   const [garages, setGarages] = useState<FindGaragesOutput | null>(null);
   const [loadingGarages, setLoadingGarages] = useState(true);
+  const [helpRequested, setHelpRequested] = useState(false);
 
   useEffect(() => {
     // For demo purposes, we'll use a fixed location.
@@ -35,23 +37,32 @@ export default function DriverDashboard() {
 
     getGarages();
   }, []);
+  
+  const handleRequestHelp = () => {
+    setHelpRequested(true);
+  };
+
 
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-8">
-        <Card className="bg-gradient-to-br from-primary to-blue-400 text-primary-foreground">
-          <CardHeader>
-            <CardTitle>Need Assistance?</CardTitle>
-            <CardDescription className="text-primary-foreground/80">
-              Click the button below to send a help request with your current location.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button size="lg" variant="secondary" className="text-lg font-bold shadow-lg hover:scale-105 transition-transform">
-              <Car className="mr-2 h-5 w-5" /> Request Help
-            </Button>
-          </CardContent>
-        </Card>
+        {!helpRequested ? (
+          <Card className="bg-gradient-to-br from-primary to-blue-400 text-primary-foreground">
+            <CardHeader>
+              <CardTitle>Need Assistance?</CardTitle>
+              <CardDescription className="text-primary-foreground/80">
+                Click the button below to send a help request with your current location.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={handleRequestHelp} size="lg" variant="secondary" className="text-lg font-bold shadow-lg hover:scale-105 transition-transform">
+                <Car className="mr-2 h-5 w-5" /> Request Help
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+           <StatusTracker />
+        )}
         
         <div className="grid md:grid-cols-1 gap-8">
             <ChatWindow />
