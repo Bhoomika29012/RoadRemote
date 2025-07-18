@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Car, ShieldCheck, Wrench, Search, Star } from 'lucide-react';
+import { CheckCircle, Car, ShieldCheck, Wrench, Search, Star, CircleDotDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -9,7 +9,7 @@ import { RatingDialog } from './rating-dialog';
 
 const statuses = [
   { text: 'Request Initiated', icon: <Search /> },
-  { text: 'Finding Help', icon: <Search /> },
+  { text: 'Finding Help', icon: <CircleDotDashed /> },
   { text: 'Helper Assigned', icon: <ShieldCheck /> },
   { text: 'Help on the way', icon: <Car /> },
   { text: 'Service Completed', icon: <Wrench /> },
@@ -21,7 +21,7 @@ interface StatusTrackerProps {
   helperName?: string;
   serviceCompleted: boolean;
   ratingSubmitted: boolean;
-  onRateHelper: (rating: number, comment: string) => void;
+  onRateHelper: () => void;
 }
 
 export function StatusTracker({
@@ -34,7 +34,7 @@ export function StatusTracker({
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
 
   const handleRatingSubmit = (rating: number, comment: string) => {
-    onRateHelper(rating, comment);
+    onRateHelper();
     setIsRatingDialogOpen(false);
   };
   

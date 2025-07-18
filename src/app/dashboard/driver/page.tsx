@@ -124,6 +124,10 @@ export default function DriverDashboard() {
     if (helperAssigned && helperAssigned.id !== id) {
        return <Button size="sm" variant="outline" disabled>Unavailable</Button>;
     }
+     if (helperAssigned && helperAssigned.id === id) {
+      return <Button size="sm" variant="success" disabled>Confirmed</Button>;
+    }
+
 
     switch (status) {
       case 'idle':
@@ -143,8 +147,9 @@ export default function DriverDashboard() {
     if (ratingSubmitted) return 6;
     if (serviceCompleted) return 5;
     if (helperAssigned) return 3; // Covers assigned and on the way
-    if (helpRequested) return 2;
-    return 1;
+    if (Object.values(requestStatuses).some(s => s === 'requested' || s === 'available')) return 2;
+    if (helpRequested) return 1;
+    return 0;
   }
 
 
