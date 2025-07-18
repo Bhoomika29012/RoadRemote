@@ -11,7 +11,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 const FindGaragesInputSchema = z.object({
-  location: z.string().describe('The current location of the user (e.g., "Mountain View, CA").'),
+  location: z.string().describe('The current location of the user as latitude and longitude (e.g., "40.7128, -74.0060") or a city name.'),
 });
 export type FindGaragesInput = z.infer<typeof FindGaragesInputSchema>;
 
