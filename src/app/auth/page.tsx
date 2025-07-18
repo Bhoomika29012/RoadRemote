@@ -51,7 +51,7 @@ export default function AuthPage() {
     <div className="flex items-center justify-center min-h-screen bg-secondary">
        <Link href="/" className="absolute top-4 left-4 flex items-center text-lg font-bold" prefetch={false}>
           <Car className="h-6 w-6 text-primary" />
-          <span className="ml-2">RoadRescue</span>
+          <span className="ml-2">RoadRemote</span>
         </Link>
       <Tabs defaultValue="login" className="w-full max-w-md mx-4">
         <Card>
