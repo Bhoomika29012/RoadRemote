@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,12 +11,10 @@ import { Separator } from '@/components/ui/separator';
 import { useEffect, useState } from 'react';
 import { findGarages, FindGaragesOutput } from '@/ai/flows/find-garages-flow';
 import { Skeleton } from '@/components/ui/skeleton';
-import { StatusTracker } from '@/components/status-tracker';
 
 export default function DriverDashboard() {
   const [garages, setGarages] = useState<FindGaragesOutput | null>(null);
   const [loadingGarages, setLoadingGarages] = useState(true);
-  const [helpRequested, setHelpRequested] = useState(false);
 
   useEffect(() => {
     const currentLocation = 'Mountain View, CA';
@@ -34,31 +33,18 @@ export default function DriverDashboard() {
 
     getGarages();
   }, []);
-  
-  const handleRequestHelp = () => {
-    setHelpRequested(true);
-  };
 
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-8">
-        {!helpRequested ? (
-          <Card className="bg-gradient-to-br from-primary to-blue-400 text-primary-foreground">
+        <Card className="bg-gradient-to-br from-primary to-blue-400 text-primary-foreground">
             <CardHeader>
-              <CardTitle>Need Assistance?</CardTitle>
+              <CardTitle>Having Car Trouble?</CardTitle>
               <CardDescription className="text-primary-foreground/80">
-                Click the button below to send a help request with your current location.
+                You're in the right place. Find volunteers and professional garages below to get the help you need.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button onClick={handleRequestHelp} size="lg" variant="secondary" className="text-lg font-bold shadow-lg hover:scale-105 transition-transform">
-                <Car className="mr-2 h-5 w-5" /> Request Help
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-           <StatusTracker />
-        )}
+        </Card>
         
         <div className="grid md:grid-cols-1 gap-8">
             <ChatWindow />
