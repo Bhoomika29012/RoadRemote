@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -31,6 +32,7 @@ const skills = [
   { id: 'fuel_delivery', label: 'Fuel Delivery' },
   { id: 'jump_start', label: 'Jump Start / Battery Help' },
   { id: 'tire_change', label: 'Tire Change' },
+  { id: 'other', label: 'Other' },
 ];
 
 const tools = [
@@ -38,6 +40,7 @@ const tools = [
   { id: 'jack', label: 'Car Jack' },
   { id: 'jumper_cables', label: 'Jumper Cables' },
   { id: 'basic_toolkit', label: 'Basic Toolkit' },
+  { id: 'other', label: 'Other' },
 ];
 
 const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
@@ -57,6 +60,8 @@ const availabilityFormSchema = z.object({
   tools: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: 'You have to select at least one tool.',
   }),
+  otherSkills: z.string().optional(),
+  otherTools: z.string().optional(),
 });
 
 type AvailabilityFormValues = z.infer<typeof availabilityFormSchema>;
@@ -72,6 +77,9 @@ export default function AvailabilityForm() {
     resolver: zodResolver(availabilityFormSchema),
     defaultValues,
   });
+
+  const watchSkills = form.watch('skills', []);
+  const watchTools = form.watch('tools', []);
 
   function onSubmit(data: AvailabilityFormValues) {
     console.log(data);
@@ -247,6 +255,21 @@ export default function AvailabilityForm() {
                         />
                       ))}
                     </div>
+                     {watchSkills.includes('other') && (
+                        <FormField
+                            control={form.control}
+                            name="otherSkills"
+                            render={({ field }) => (
+                                <FormItem className="mt-4">
+                                <FormLabel>Other Skills</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g., Basic diagnostics" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -285,6 +308,21 @@ export default function AvailabilityForm() {
                         />
                       ))}
                     </div>
+                    {watchTools.includes('other') && (
+                        <FormField
+                            control={form.control}
+                            name="otherTools"
+                            render={({ field }) => (
+                                <FormItem className="mt-4">
+                                <FormLabel>Other Tools</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g., Tow rope" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
