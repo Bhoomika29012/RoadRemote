@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { Card } from './ui/card';
-import { Car, Wrench, User, MapPin } from 'lucide-react';
+import { Car, Wrench, User, MapPin, HeartHandshake } from 'lucide-react';
 
 const MapMarker = ({ icon, top, left, label, colorClass }: { icon: React.ReactNode, top: string, left: string, label: string, colorClass: string }) => (
     <div className="absolute" style={{ top, left }}>
