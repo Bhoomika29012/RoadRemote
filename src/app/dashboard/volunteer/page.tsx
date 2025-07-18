@@ -54,11 +54,13 @@ export default function VolunteerDashboard() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="space-y-1">
             <CardTitle>Availability Status</CardTitle>
-            <CardDescription>Toggle to start or stop receiving new requests. <Link href="/dashboard/volunteer/availability" className="font-semibold underline">Edit profile.</Link></CardDescription>
+            <CardDescription>Toggle the switch to start or stop receiving new requests.</CardDescription>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
+             <Button asChild variant="outline">
+                <Link href="/dashboard/volunteer/availability">Update Availability</Link>
+             </Button>
             <Switch id="availability-mode" defaultChecked/>
-            <label htmlFor="availability-mode" className="font-medium">Available</label>
           </div>
         </CardHeader>
       </Card>
