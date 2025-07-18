@@ -20,16 +20,6 @@ export function StatusTracker() {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isClient && currentStatus < statuses.length - 1) {
-      timer = setTimeout(() => {
-        setCurrentStatus((prevStatus) => prevStatus + 1);
-      }, 3000); // 3-second delay for demo purposes
-    }
-    return () => clearTimeout(timer);
-  }, [currentStatus, isClient]);
-
   return (
     <Card>
         <CardHeader>
@@ -52,9 +42,9 @@ export function StatusTracker() {
                         {status.text}
                     </p>
                     {index === currentStatus && currentStatus < statuses.length -1 && isClient && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Loader className="h-4 w-4 animate-spin" />
-                            <span>In progress...</span>
+                         <div className="flex items-center gap-2 text-sm text-primary">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Done!</span>
                         </div>
                     )}
                     {index === statuses.length - 1 && currentStatus === statuses.length -1 && (
