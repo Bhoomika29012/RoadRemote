@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPlaceholder } from '@/components/map-placeholder';
 import { ChatWindow } from '@/components/chat-window';
-import { StatusTracker } from '@/components/status-tracker';
 import { Car, Wrench, HeartHandshake } from 'lucide-react';
 import { mockVolunteers } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { useEffect, useState } from 'react';
 import { findGarages, FindGaragesOutput } from '@/ai/flows/find-garages-flow';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StatusTracker } from '@/components/status-tracker';
 
 export default function DriverDashboard() {
   const [garages, setGarages] = useState<FindGaragesOutput | null>(null);
@@ -18,8 +18,6 @@ export default function DriverDashboard() {
   const [helpRequested, setHelpRequested] = useState(false);
 
   useEffect(() => {
-    // For demo purposes, we'll use a fixed location.
-    // In a real app, you would use the browser's geolocation API.
     const currentLocation = 'Mountain View, CA';
 
     async function getGarages() {
@@ -29,7 +27,6 @@ export default function DriverDashboard() {
         setGarages(result);
       } catch (error) {
         console.error('Error finding garages:', error);
-        // Handle error state in UI if necessary
       } finally {
         setLoadingGarages(false);
       }
@@ -41,7 +38,6 @@ export default function DriverDashboard() {
   const handleRequestHelp = () => {
     setHelpRequested(true);
   };
-
 
   return (
     <div className="grid lg:grid-cols-3 gap-8">
