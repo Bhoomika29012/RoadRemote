@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 const statuses = [
   { text: 'Request Sent', icon: <CheckCircle /> },
-  { text: 'Volunteer Found', icon: <ShieldCheck /> },
+  { text: 'Helper Assigned', icon: <ShieldCheck /> },
   { text: 'Help on the way', icon: <Car /> },
-  { text: 'Request Completed', icon: <Wrench /> },
+  { text: 'Service Completed', icon: <Wrench /> },
 ];
 
 export function StatusTracker() {
@@ -21,12 +21,13 @@ export function StatusTracker() {
   }, []);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (isClient && currentStatus < statuses.length - 1) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setCurrentStatus((prevStatus) => prevStatus + 1);
       }, 3000); // 3-second delay for demo purposes
-      return () => clearTimeout(timer);
     }
+    return () => clearTimeout(timer);
   }, [currentStatus, isClient]);
 
   return (
@@ -50,10 +51,16 @@ export function StatusTracker() {
                     <p className={cn('font-medium', index <= currentStatus ? 'text-foreground' : 'text-muted-foreground')}>
                         {status.text}
                     </p>
-                    {index === currentStatus && isClient && (
+                    {index === currentStatus && currentStatus < statuses.length -1 && isClient && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Loader className="h-4 w-4 animate-spin" />
                             <span>In progress...</span>
+                        </div>
+                    )}
+                    {index === statuses.length - 1 && currentStatus === statuses.length -1 && (
+                         <div className="flex items-center gap-2 text-sm text-primary">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Done!</span>
                         </div>
                     )}
                 </div>

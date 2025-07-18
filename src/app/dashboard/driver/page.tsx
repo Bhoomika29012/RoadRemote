@@ -1,7 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPlaceholder } from '@/components/map-placeholder';
 import { ChatWindow } from '@/components/chat-window';
 import { HeartHandshake, Wrench } from 'lucide-react';
 import { mockVolunteers } from '@/lib/data';
@@ -11,6 +10,7 @@ import { useState } from 'react';
 import { findGarages, FindGaragesOutput } from '@/ai/flows/find-garages-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { StatusTracker } from '@/components/status-tracker';
 
 export default function DriverDashboard() {
   const [garages, setGarages] = useState<FindGaragesOutput | null>(null);
@@ -53,7 +53,6 @@ export default function DriverDashboard() {
             title: 'Location Error',
             description: 'Could not get your location. Please enable location services.',
           });
-          // Fallback to a default location if user denies permission
           getGarages('Mountain View, CA');
         }
       );
@@ -172,7 +171,7 @@ export default function DriverDashboard() {
         )}
       </div>
       <div className="lg:col-span-1">
-        <MapPlaceholder />
+        {helpRequested ? <StatusTracker /> : <Card className="w-full h-[400px] lg:h-full flex items-center justify-center bg-muted/50"><p className="text-muted-foreground">Your request status will appear here.</p></Card>}
       </div>
     </div>
   );
