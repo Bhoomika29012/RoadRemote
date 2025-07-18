@@ -55,7 +55,7 @@ export function StatusTracker({
                     index < currentStep ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'
                   )}
                 >
-                  {index < currentStep -1 ? <CheckCircle className="h-5 w-5" /> : status.icon}
+                  {index < currentStep ? <CheckCircle className="h-5 w-5" /> : status.icon}
                 </div>
                 <div className="flex-1">
                   <p className={cn('font-medium', index < currentStep ? 'text-foreground' : 'text-muted-foreground')}>

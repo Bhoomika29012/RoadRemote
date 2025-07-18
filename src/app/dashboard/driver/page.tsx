@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { StatusTracker } from '@/components/status-tracker';
 import { AiChatbot } from '@/components/ai-chatbot';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RatingDialog } from '@/components/rating-dialog';
 
 type RequestStatus = 'idle' | 'requested' | 'available' | 'confirmed';
 
@@ -265,12 +264,7 @@ export default function DriverDashboard() {
         <StatusTracker 
             currentStep={getStatusStep()} 
             helperName={helperAssigned?.name}
-            onRateHelper={() => {
-                // This function will be called by a button in StatusTracker
-                // It can open a dialog. For now we will use a toast
-                // to show it's working
-                console.log("Rating helper");
-            }}
+            onRateHelper={handleRatingSubmit}
             serviceCompleted={serviceCompleted}
             ratingSubmitted={ratingSubmitted}
         />
