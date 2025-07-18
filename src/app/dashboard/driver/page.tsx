@@ -140,11 +140,11 @@ export default function DriverDashboard() {
   };
 
   const getStatusStep = () => {
-    if (ratingSubmitted) return 5;
-    if (serviceCompleted) return 4;
-    if (helperAssigned) return 2; // Steps 2 & 3 are covered by this
-    if (helpRequested) return 1;
-    return 0;
+    if (ratingSubmitted) return 6;
+    if (serviceCompleted) return 5;
+    if (helperAssigned) return 3; // Covers assigned and on the way
+    if (helpRequested) return 2;
+    return 1;
   }
 
 
