@@ -1,11 +1,12 @@
 'use client';
 
-import { CheckCircle, Car, ShieldCheck, Wrench } from 'lucide-react';
+import { CheckCircle, Car, ShieldCheck, Wrench, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 const statuses = [
-  { text: 'Request Sent', icon: <CheckCircle /> },
+  { text: 'Request Initiated', icon: <Search /> },
+  { text: 'Finding Help', icon: <Search /> },
   { text: 'Helper Assigned', icon: <ShieldCheck /> },
   { text: 'Help on the way', icon: <Car /> },
   { text: 'Service Completed', icon: <Wrench /> },
@@ -37,12 +38,6 @@ export function StatusTracker({ currentStep }: StatusTrackerProps) {
                     <p className={cn('font-medium', index <= currentStep ? 'text-foreground' : 'text-muted-foreground')}>
                         {status.text}
                     </p>
-                    {index <= currentStep && (
-                         <div className="flex items-center gap-2 text-sm text-primary">
-                            <CheckCircle className="h-4 w-4" />
-                            <span>Done!</span>
-                        </div>
-                    )}
                 </div>
                 </div>
             ))}

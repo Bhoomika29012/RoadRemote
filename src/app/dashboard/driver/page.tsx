@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChatWindow } from '@/components/chat-window';
-import { HeartHandshake, Wrench } from 'lucide-react';
+import { HeartHandshake, Wrench, Bot } from 'lucide-react';
 import { mockVolunteers } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -11,6 +11,8 @@ import { findGarages, FindGaragesOutput } from '@/ai/flows/find-garages-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { StatusTracker } from '@/components/status-tracker';
+import { AiChatbot } from '@/components/ai-chatbot';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type RequestStatus = 'idle' | 'requested' | 'available' | 'confirmed';
 
@@ -23,9 +25,7 @@ export default function DriverDashboard() {
 
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!helpRequested) return;
-
+  const fetchGarages = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -49,7 +49,7 @@ export default function DriverDashboard() {
       });
        getGarages('Mountain View, CA');
     }
-  }, [helpRequested]);
+  }
 
   async function getGarages(location: string) {
     try {
@@ -70,6 +70,7 @@ export default function DriverDashboard() {
 
   const handleInitialRequest = () => {
     setHelpRequested(true);
+    fetchGarages();
     toast({
         title: 'Request Sent',
         description: 'Finding nearby help for you.',
@@ -83,10 +84,8 @@ export default function DriverDashboard() {
       description: `Your request has been sent to ${name}.`,
     });
 
-    // Simulate helper responding after a delay
-    const delay = Math.random() * (7000 - 3000) + 3000; // 3-7 seconds
+    const delay = Math.random() * (7000 - 3000) + 3000;
     setTimeout(() => {
-      // Don't update if a helper has already been confirmed
       if (!helperAssigned) {
          setRequestStatuses(prev => ({ ...prev, [id]: 'available' }));
       }
@@ -124,33 +123,40 @@ export default function DriverDashboard() {
   };
 
 
+  if (!helpRequested) {
+    return (
+        <Card className="bg-gradient-to-br from-primary to-blue-400 text-primary-foreground w-full">
+            <CardHeader>
+                <CardTitle>Having Car Trouble?</CardTitle>
+                <CardDescription className="text-primary-foreground/80">
+                You're in the right place. Click below to find nearby help or ask our AI for guidance.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button onClick={handleInitialRequest} size="lg" variant="secondary" className="text-lg font-bold">
+                    Request Roadside Assistance
+                </Button>
+            </CardContent>
+        </Card>
+    );
+  }
+
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-8">
-        {!helpRequested ? (
-          <Card className="bg-gradient-to-br from-primary to-blue-400 text-primary-foreground">
-            <CardHeader>
-              <CardTitle>Having Car Trouble?</CardTitle>
-              <CardDescription className="text-primary-foreground/80">
-                You're in the right place. Click below to find nearby help.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={handleInitialRequest} size="lg" variant="secondary" className="text-lg font-bold">
-                Request Help Now
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            {helperAssigned && (
-              <div className="grid md:grid-cols-1 gap-8">
-                <ChatWindow />
-              </div>
-            )}
-
-            <div>
-              <h2 className="text-2xl font-bold mb-4 font-headline">Nearby Help</h2>
+        <Tabs defaultValue="find-help">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="find-help">Find Help</TabsTrigger>
+            <TabsTrigger value="ai-chat">AI Assistant</TabsTrigger>
+          </TabsList>
+          <TabsContent value="find-help">
+             {helperAssigned && (
+                <div className="my-6">
+                    <ChatWindow />
+                </div>
+              )}
+             <div>
+              <h2 className="text-2xl font-bold mb-4 font-headline mt-6">Nearby Help</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
@@ -223,11 +229,14 @@ export default function DriverDashboard() {
                 </Card>
               </div>
             </div>
-          </>
-        )}
+          </TabsContent>
+          <TabsContent value="ai-chat">
+            <AiChatbot />
+          </TabsContent>
+        </Tabs>
       </div>
       <div className="lg:col-span-1">
-        {helpRequested ? <StatusTracker currentStep={helperAssigned ? 1 : 0} /> : <Card className="w-full h-[400px] lg:h-full flex items-center justify-center bg-muted/50"><p className="text-muted-foreground">Your request status will appear here.</p></Card>}
+        <StatusTracker currentStep={helperAssigned ? 2 : 1} />
       </div>
     </div>
   );
