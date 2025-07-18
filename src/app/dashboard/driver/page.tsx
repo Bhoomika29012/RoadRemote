@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPlaceholder } from '@/components/map-placeholder';
-import { StatusTracker } from '@/components/status-tracker';
 import { ChatWindow } from '@/components/chat-window';
 import { Car, Fuel, Wrench, HeartHandshake } from 'lucide-react';
 import { mockGarages, mockVolunteers } from '@/lib/data';
@@ -26,8 +25,7 @@ export default function DriverDashboard() {
           </CardContent>
         </Card>
         
-        <div className="grid md:grid-cols-2 gap-8">
-            <StatusTracker />
+        <div className="grid md:grid-cols-1 gap-8">
             <ChatWindow />
         </div>
 
