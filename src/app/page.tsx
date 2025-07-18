@@ -27,30 +27,13 @@ export default function Home() {
       <main className="flex-1">
         <section className="w-full pt-24 md:pt-32 lg:pt-40 border-b">
           <div className="px-4 md:px-6 space-y-10 xl:space-y-16">
-            <div className="grid max-w-[1300px] mx-auto gap-4 px-4 sm:px-6 md:px-10 md:grid-cols-2 md:gap-16">
-              <div>
-                <h1 className="lg:leading-tighter text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl xl:text-[3.4rem] 2xl:text-[3.75rem] font-headline">
-                  Stranded? Get reliable roadside assistance, fast.
-                </h1>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
-                  RoadRescue connects you with nearby volunteers and professional garages to get you back on the road in no time.
-                </p>
-                <div className="space-x-4 mt-6">
-                  <Button asChild size="lg">
-                    <Link href="/auth?role=driver" prefetch={false}>
-                      Request Help Now
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                <img
-                  src="https://placehold.co/600x400.png"
-                  alt="Hero"
-                  data-ai-hint="roadside assistance car"
-                  className="mx-auto aspect-video overflow-hidden rounded-xl object-cover"
-                />
-              </div>
+            <div className="max-w-[1300px] mx-auto text-center">
+              <h1 className="lg:leading-tighter text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl xl:text-[3.4rem] 2xl:text-[3.75rem] font-headline">
+                Stranded? Get reliable roadside assistance, fast.
+              </h1>
+              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
+                RoadRescue connects you with nearby volunteers and professional garages to get you back on the road in no time.
+              </p>
             </div>
           </div>
         </section>
