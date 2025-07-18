@@ -51,7 +51,7 @@ export const mockHelpRequests: HelpRequest[] = [
     vehicle: 'Honda Civic',
     location: 'Near Central Park',
     issue: 'Out of Gas',
-    status: 'Pending',
+    status: 'Accepted',
     timestamp: '25m ago',
     distance: 7.8
   },

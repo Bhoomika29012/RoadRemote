@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { mockHelpRequests } from '@/lib/data';
+import { mockHelpRequests, type HelpRequest } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
@@ -11,8 +12,14 @@ import { CheckCircle, MapPin, Wrench } from 'lucide-react';
 
 export default function GarageDashboard() {
   const { toast } = useToast();
+  const [requests, setRequests] = useState<HelpRequest[]>(mockHelpRequests);
 
-  const handleAccept = (driverName: string) => {
+  const handleAccept = (id: string, driverName: string) => {
+    setRequests(prevRequests =>
+      prevRequests.map(req =>
+        req.id === id ? { ...req, status: 'Accepted' } : req
+      )
+    );
     toast({
       title: (
         <div className="flex items-center">
@@ -24,17 +31,38 @@ export default function GarageDashboard() {
     });
   };
 
-  const handleComplete = (reqId: string) => {
-     toast({
+  const handleComplete = (id: string) => {
+    setRequests(prevRequests =>
+      prevRequests.map(req =>
+        req.id === id ? { ...req, status: 'Completed' } : req
+      )
+    );
+    toast({
       title: (
         <div className="flex items-center">
           <Wrench className="h-5 w-5 text-primary mr-2" />
           <span>Job Completed!</span>
         </div>
       ),
-      description: `Request #${reqId.slice(-3)} has been marked as completed.`,
+      description: `Request #${id.slice(-3)} has been marked as completed.`,
     });
+  };
+  
+  const getStatusBadge = (status: HelpRequest['status']) => {
+    switch(status) {
+        case 'Pending':
+            return <Badge variant="destructive">{status}</Badge>;
+        case 'Accepted':
+            return <Badge variant="default">Accepted</Badge>;
+        case 'In-Progress':
+            return <Badge variant="secondary">{status}</Badge>;
+        case 'Completed':
+            return <Badge variant="success">{status}</Badge>;
+        default:
+            return <Badge>{status}</Badge>
+    }
   }
+
 
   return (
     <div className="space-y-8">
@@ -54,14 +82,14 @@ export default function GarageDashboard() {
       <div>
         <h2 className="text-2xl font-bold mb-4 font-headline">Nearby Job Requests</h2>
         <div className="space-y-4">
-          {mockHelpRequests.map((req) => (
+          {requests.map((req) => (
             <Card key={req.id}>
               <CardHeader className="flex flex-row justify-between items-start">
                   <div>
                     <CardTitle>{req.issue}</CardTitle>
                     <CardDescription>{req.driverName} - {req.vehicle}</CardDescription>
                   </div>
-                   <Badge variant={req.status === 'Pending' ? 'destructive' : 'default'}>{req.status}</Badge>
+                   {getStatusBadge(req.status)}
               </CardHeader>
               <CardContent>
                 <div className="flex items-center text-sm text-muted-foreground mb-4">
@@ -72,14 +100,25 @@ export default function GarageDashboard() {
                 <div className="flex justify-between items-center">
                     <p className="text-sm text-muted-foreground">{req.timestamp}</p>
                     <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => handleComplete(req.id)}>Mark Completed</Button>
-                        <Button onClick={() => handleAccept(req.driverName)}>Accept Job</Button>
+                        <Button 
+                            variant="outline" 
+                            onClick={() => handleComplete(req.id)}
+                            disabled={req.status === 'Completed'}
+                        >
+                            Mark Completed
+                        </Button>
+                        <Button 
+                            onClick={() => handleAccept(req.id, req.driverName)}
+                            disabled={req.status !== 'Pending'}
+                        >
+                           {req.status === 'Pending' ? 'Accept Job' : 'Accepted'}
+                        </Button>
                     </div>
                 </div>
               </CardContent>
             </Card>
           ))}
-           {mockHelpRequests.length === 0 && (
+           {requests.length === 0 && (
              <Card className="text-center p-8">
                 <p className="text-muted-foreground">No active requests in your area. Check back soon!</p>
              </Card>
