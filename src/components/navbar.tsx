@@ -22,9 +22,8 @@ export function Navbar() {
             <span className="sr-only">Back</span>
           </Button>
         )}
-        <Link href="/" className="flex items-center justify-center" prefetch={false}>
-          <Car className="h-6 w-6 text-primary" />
-          <span className="ml-2 text-xl font-bold font-headline">RoadRemote</span>
+        <Link href="/" className="text-lg font-semibold hover:underline" prefetch={false}>
+          Home
         </Link>
       </div>
       <nav className="ml-auto flex items-center gap-4 sm:gap-6">
