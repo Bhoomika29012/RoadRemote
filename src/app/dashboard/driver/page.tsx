@@ -37,6 +37,10 @@ export default function DriverDashboard() {
 
   const handleRequestHelp = () => {
     setHelpRequested(true);
+    toast({
+        title: 'Request Sent',
+        description: 'Finding nearby help for you.',
+    });
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -50,7 +54,7 @@ export default function DriverDashboard() {
             description: 'Could not get your location. Please enable location services.',
           });
           // Fallback to a default location if user denies permission
-          getGarages('New York, NY');
+          getGarages('Mountain View, CA');
         }
       );
     } else {
@@ -59,7 +63,7 @@ export default function DriverDashboard() {
         title: 'Location Error',
         description: 'Geolocation is not supported by this browser.',
       });
-       getGarages('New York, NY');
+       getGarages('Mountain View, CA');
     }
   };
 
