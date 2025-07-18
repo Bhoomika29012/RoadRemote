@@ -14,15 +14,20 @@ const statuses = [
 
 export function StatusTracker() {
   const [currentStatus, setCurrentStatus] = useState(0);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (currentStatus < statuses.length -1) {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient && currentStatus < statuses.length - 1) {
       const timer = setTimeout(() => {
         setCurrentStatus((prevStatus) => prevStatus + 1);
       }, 3000); // 3-second delay for demo purposes
       return () => clearTimeout(timer);
     }
-  }, [currentStatus]);
+  }, [currentStatus, isClient]);
 
   return (
     <Card>
@@ -45,7 +50,7 @@ export function StatusTracker() {
                     <p className={cn('font-medium', index <= currentStatus ? 'text-foreground' : 'text-muted-foreground')}>
                         {status.text}
                     </p>
-                    {index === currentStatus && (
+                    {index === currentStatus && isClient && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Loader className="h-4 w-4 animate-spin" />
                             <span>In progress...</span>
