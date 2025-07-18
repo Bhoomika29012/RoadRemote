@@ -15,7 +15,6 @@ import Link from 'next/link';
 export default function VolunteerDashboard() {
   const { toast } = useToast();
   const [requests, setRequests] = useState<HelpRequest[]>(mockHelpRequests);
-  const [acceptedJobId, setAcceptedJobId] = useState<string | null>(null);
 
   const handleAccept = (id: string, driverName: string) => {
     setRequests(prevRequests =>
@@ -23,7 +22,6 @@ export default function VolunteerDashboard() {
         req.id === id ? { ...req, status: 'Accepted' } : req
       )
     );
-    setAcceptedJobId(id);
     toast({
       title: (
         <div className="flex items-center">
@@ -92,7 +90,7 @@ export default function VolunteerDashboard() {
                     <p className="text-sm text-muted-foreground">{req.timestamp}</p>
                     <Button 
                       onClick={() => handleAccept(req.id, req.driverName)}
-                      disabled={req.status !== 'Pending' || (acceptedJobId !== null && acceptedJobId !== req.id)}
+                      disabled={req.status !== 'Pending'}
                     >
                       {req.status === 'Accepted' ? 'Accepted' : 'Accept Request'}
                     </Button>
