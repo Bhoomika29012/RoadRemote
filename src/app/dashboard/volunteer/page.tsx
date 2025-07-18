@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { mockHelpRequests, type HelpRequest, mockVolunteers } from '@/lib/data';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
@@ -51,19 +50,11 @@ export default function VolunteerDashboard() {
   return (
     <div className="grid lg:grid-cols-3 gap-8">
      <div className="lg:col-span-2 space-y-8">
-      <Alert>
-        <AlertTitle>Welcome, Volunteer!</AlertTitle>
-        <AlertDescription>
-            Your availability and skills are not set up. Please{' '}
-            <Link href="/dashboard/volunteer/availability" className="font-semibold underline">complete your profile</Link>
-            {' '}to start receiving help requests.
-        </AlertDescription>
-      </Alert>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="space-y-1">
             <CardTitle>Availability Status</CardTitle>
-            <CardDescription>Toggle to start or stop receiving new requests.</CardDescription>
+            <CardDescription>Toggle to start or stop receiving new requests. <Link href="/dashboard/volunteer/availability" className="font-semibold underline">Edit profile.</Link></CardDescription>
           </div>
           <div className="flex items-center space-x-2">
             <Switch id="availability-mode" defaultChecked/>
