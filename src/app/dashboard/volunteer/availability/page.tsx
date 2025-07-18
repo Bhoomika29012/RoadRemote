@@ -13,8 +13,14 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -34,9 +40,17 @@ const tools = [
   { id: 'basic_toolkit', label: 'Basic Toolkit' },
 ];
 
+const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
+const minutes = ['00', '15', '30', '45'];
+const periods = ['AM', 'PM'];
+
 const availabilityFormSchema = z.object({
-  availableFrom: z.string().min(1, { message: 'Please enter a start time.' }),
-  availableTo: z.string().min(1, { message: 'Please enter an end time.' }),
+  availableFromHour: z.string({ required_error: 'Please select an hour.' }),
+  availableFromMinute: z.string({ required_error: 'Please select a minute.' }),
+  availableFromPeriod: z.string({ required_error: 'Please select AM or PM.' }),
+  availableToHour: z.string({ required_error: 'Please select an hour.' }),
+  availableToMinute: z.string({ required_error: 'Please select a minute.' }),
+  availableToPeriod: z.string({ required_error: 'Please select AM or PM.' }),
   skills: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: 'You have to select at least one skill.',
   }),
@@ -78,32 +92,126 @@ export default function AvailabilityForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <FormField
-                  control={form.control}
-                  name="availableFrom"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Available From (e.g., 9:00 AM)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Time" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="availableTo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Available To (e.g., 5:00 PM)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Time" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                 <FormItem>
+                   <FormLabel>Available From</FormLabel>
+                   <div className="flex gap-2">
+                      <FormField
+                        control={form.control}
+                        name="availableFromHour"
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Hour" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {hours.map(hour => <SelectItem key={hour} value={hour}>{hour}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="availableFromMinute"
+                        render={({ field }) => (
+                           <FormItem className="flex-1">
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Min" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {minutes.map(min => <SelectItem key={min} value={min}>{min}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                           </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="availableFromPeriod"
+                        render={({ field }) => (
+                           <FormItem className="w-[80px]">
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="AM/PM" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {periods.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                           </FormItem>
+                        )}
+                      />
+                   </div>
+                   <FormMessage />
+                 </FormItem>
+                  <FormItem>
+                   <FormLabel>Available To</FormLabel>
+                   <div className="flex gap-2">
+                      <FormField
+                        control={form.control}
+                        name="availableToHour"
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Hour" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {hours.map(hour => <SelectItem key={hour} value={hour}>{hour}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="availableToMinute"
+                        render={({ field }) => (
+                           <FormItem className="flex-1">
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Min" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {minutes.map(min => <SelectItem key={min} value={min}>{min}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                           </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="availableToPeriod"
+                        render={({ field }) => (
+                           <FormItem className="w-[80px]">
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="AM/PM" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {periods.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                           </FormItem>
+                        )}
+                      />
+                   </div>
+                    <FormMessage />
+                 </FormItem>
               </div>
 
               <FormField
@@ -128,7 +236,7 @@ export default function AvailabilityForm() {
                                   checked={field.value?.includes(item.id)}
                                   onCheckedChange={(checked) => {
                                     return checked
-                                      ? field.onChange([...field.value, item.id])
+                                      ? field.onChange([...(field.value || []), item.id])
                                       : field.onChange(field.value?.filter((value) => value !== item.id));
                                   }}
                                 />
@@ -166,7 +274,7 @@ export default function AvailabilityForm() {
                                   checked={field.value?.includes(item.id)}
                                   onCheckedChange={(checked) => {
                                     return checked
-                                      ? field.onChange([...field.value, item.id])
+                                      ? field.onChange([...(field.value || []), item.id])
                                       : field.onChange(field.value?.filter((value) => value !== item.id));
                                   }}
                                 />
