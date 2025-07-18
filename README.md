@@ -27,3 +27,11 @@ npm run dev
 
 - 🔒 **Secure Firebase Authentication**  
   Supports login/signup for all roles (Driver, Garage, Volunteer).
+
+  ## ⚙️ Tech Stack
+
+- Gemini via Genkit
+- Next.js
+- TypeScript
+- Tailwind CSS
+- Firebase (Auth, Firestore/Realtime DB)
