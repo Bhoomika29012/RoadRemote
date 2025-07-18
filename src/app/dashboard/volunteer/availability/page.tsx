@@ -25,6 +25,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAppStore } from '@/lib/request-store';
+import { useToast } from '@/hooks/use-toast';
 
 const skills = [
   { id: 'basic_repair', label: 'Basic Repair (e.g., loose wire)' },
@@ -73,6 +75,9 @@ const defaultValues: Partial<AvailabilityFormValues> = {
 
 export default function AvailabilityForm() {
   const router = useRouter();
+  const { toast } = useToast();
+  const { updateVolunteer } = useAppStore();
+  
   const form = useForm<AvailabilityFormValues>({
     resolver: zodResolver(availabilityFormSchema),
     defaultValues,
@@ -82,8 +87,35 @@ export default function AvailabilityForm() {
   const watchTools = form.watch('tools', []);
 
   function onSubmit(data: AvailabilityFormValues) {
-    console.log(data);
-    // In a real app, you'd save this to the backend.
+    // In a real app, you'd get the current volunteer's ID from auth.
+    // For this demo, we'll just update the first volunteer.
+    const volunteerId = 'vol-1'; 
+    
+    const submittedSkills = data.skills
+        .map(skillId => skills.find(s => s.id === skillId)?.label)
+        .filter(Boolean) as string[];
+    if (data.otherSkills) {
+        submittedSkills.push(data.otherSkills);
+    }
+    
+    const submittedTools = data.tools
+        .map(toolId => tools.find(t => t.id === toolId)?.label)
+        .filter(Boolean) as string[];
+    if (data.otherTools) {
+        submittedTools.push(data.otherTools);
+    }
+    
+    updateVolunteer(volunteerId, {
+        skills: submittedSkills,
+        tools: submittedTools,
+        // We could also save availability times here
+    });
+
+    toast({
+        title: "Profile Saved!",
+        description: "Your availability and skills have been updated.",
+    });
+
     router.push('/dashboard/volunteer');
   }
 
@@ -115,7 +147,7 @@ export default function AvailabilityForm() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {hours.map(hour => <SelectItem key={hour} value={hour}>{hour}</SelectItem>)}
+                                {hours.map(hour => <SelectItem key={'from-h-'+hour} value={hour}>{hour}</SelectItem>)}
                               </SelectContent>
                             </Select>
                           </FormItem>
@@ -133,7 +165,7 @@ export default function AvailabilityForm() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {minutes.map(min => <SelectItem key={min} value={min}>{min}</SelectItem>)}
+                                {minutes.map(min => <SelectItem key={'from-m-'+min} value={min}>{min}</SelectItem>)}
                               </SelectContent>
                             </Select>
                            </FormItem>
@@ -151,7 +183,7 @@ export default function AvailabilityForm() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {periods.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                                {periods.map(p => <SelectItem key={'from-p-'+p} value={p}>{p}</SelectItem>)}
                               </SelectContent>
                             </Select>
                            </FormItem>
@@ -175,7 +207,7 @@ export default function AvailabilityForm() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {hours.map(hour => <SelectItem key={hour} value={hour}>{hour}</SelectItem>)}
+                                {hours.map(hour => <SelectItem key={'to-h-'+hour} value={hour}>{hour}</SelectItem>)}
                               </SelectContent>
                             </Select>
                           </FormItem>
@@ -193,7 +225,7 @@ export default function AvailabilityForm() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {minutes.map(min => <SelectItem key={min} value={min}>{min}</SelectItem>)}
+                                {minutes.map(min => <SelectItem key={'to-m-'+min} value={min}>{min}</SelectItem>)}
                               </SelectContent>
                             </Select>
                            </FormItem>
@@ -211,7 +243,7 @@ export default function AvailabilityForm() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {periods.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                                {periods.map(p => <SelectItem key={'to-p-'+p} value={p}>{p}</SelectItem>)}
                               </SelectContent>
                             </Select>
                            </FormItem>

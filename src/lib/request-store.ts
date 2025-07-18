@@ -1,20 +1,22 @@
 import { create } from 'zustand';
-import type { HelpRequest } from './data';
-import { mockHelpRequests } from './data';
+import type { HelpRequest, Volunteer } from './data';
+import { mockHelpRequests, mockVolunteers } from './data';
 
 // This is a simple in-memory store to simulate a backend/database.
-// It allows different components (Driver, Garage dashboards) to share and react to state changes.
+// It allows different components (Driver, Garage, Volunteer dashboards) to share and react to state changes.
 
-type RequestState = {
+type AppState = {
   requests: HelpRequest[];
+  volunteers: Volunteer[];
   addRequest: (request: Omit<HelpRequest, 'id' | 'timestamp' | 'status'>) => void;
   updateRequestStatus: (id: string, status: HelpRequest['status']) => void;
   getRequestById: (id: string) => HelpRequest | undefined;
+  updateVolunteer: (id: string, data: Partial<Omit<Volunteer, 'id'>>) => void;
 };
 
-export const useRequestStore = create<RequestState>((set, get) => ({
-  // Initialize with some mock data, but filter out any not in 'Pending' state to start clean.
+export const useAppStore = create<AppState>((set, get) => ({
   requests: mockHelpRequests.filter(r => r.status === 'Pending'),
+  volunteers: mockVolunteers,
   
   addRequest: (request) => {
     const newRequest: HelpRequest = {
@@ -36,5 +38,13 @@ export const useRequestStore = create<RequestState>((set, get) => ({
 
   getRequestById: (id) => {
     return get().requests.find(req => req.id === id);
-  }
+  },
+
+  updateVolunteer: (id, data) => {
+    set((state) => ({
+      volunteers: state.volunteers.map((vol) =>
+        vol.id === id ? { ...vol, ...data } : vol
+      ),
+    }));
+  },
 }));

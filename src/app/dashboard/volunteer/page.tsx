@@ -4,26 +4,26 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { mockHelpRequests, type HelpRequest, mockVolunteers } from '@/lib/data';
+import type { HelpRequest } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, MapPin, Award } from 'lucide-react';
 import Link from 'next/link';
 import { BadgeCard } from '@/components/badge-card';
+import { useAppStore } from '@/lib/request-store';
 
 
 export default function VolunteerDashboard() {
   const { toast } = useToast();
-  const [requests, setRequests] = useState<HelpRequest[]>(mockHelpRequests);
-  const [volunteer] = useState(mockVolunteers[0]); // Using first mock volunteer for demo
+  const { requests, updateRequestStatus, volunteers } = useAppStore();
+  
+  // In a real app, you'd get the volunteer's ID from authentication.
+  // For this demo, we'll just use the first volunteer from the store.
+  const volunteer = volunteers[0];
 
   const handleAccept = (id: string, driverName: string) => {
-    setRequests(prevRequests =>
-      prevRequests.map(req =>
-        req.id === id ? { ...req, status: 'Accepted' } : req
-      )
-    );
+    updateRequestStatus(id, 'Accepted');
     toast({
       title: (
         <div className="flex items-center">
@@ -47,6 +47,9 @@ export default function VolunteerDashboard() {
     }
   }
 
+  // Filter for requests not yet accepted by this volunteer
+  const availableRequests = requests.filter(req => req.status === 'Pending' && req.helperType !== 'garage');
+
   return (
     <div className="grid lg:grid-cols-3 gap-8">
      <div className="lg:col-span-2 space-y-8">
@@ -68,7 +71,7 @@ export default function VolunteerDashboard() {
       <div>
         <h2 className="text-2xl font-bold mb-4 font-headline">Nearby Help Requests</h2>
         <div className="space-y-4">
-          {requests.map((req) => (
+          {availableRequests.map((req) => (
             <Card key={req.id}>
               <CardHeader className="flex flex-row justify-between items-start">
                   <div>
@@ -95,7 +98,7 @@ export default function VolunteerDashboard() {
               </CardContent>
             </Card>
           ))}
-           {requests.filter(req => req.status === 'Pending').length === 0 && (
+           {availableRequests.length === 0 && (
              <Card className="text-center p-8">
                 <p className="text-muted-foreground">No active requests in your area. Check back soon!</p>
              </Card>

@@ -12,12 +12,15 @@ import {
 import Link from 'next/link';
 import { Award } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { mockVolunteers } from '@/lib/data';
+import { useAppStore } from '@/lib/request-store';
 
 export function UserNav() {
   const pathname = usePathname();
   const isVolunteer = pathname.includes('volunteer');
-  const volunteerPoints = isVolunteer ? mockVolunteers[0].points : 0; // Demo points
+  const { volunteers } = useAppStore();
+  
+  // In a real app, you'd get the current user's ID. For demo, we use the first volunteer.
+  const volunteerPoints = isVolunteer && volunteers.length > 0 ? volunteers[0].points : 0; 
 
   return (
     <DropdownMenu>

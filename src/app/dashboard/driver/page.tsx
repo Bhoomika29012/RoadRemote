@@ -3,11 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChatWindow } from '@/components/chat-window';
 import { HeartHandshake, Wrench } from 'lucide-react';
-import { mockVolunteers, Garage } from '@/lib/data';
+import { Garage } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useState, useEffect, useMemo } from 'react';
-import { useRequestStore } from '@/lib/request-store';
+import { useAppStore } from '@/lib/request-store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { StatusTracker } from '@/components/status-tracker';
@@ -23,8 +23,8 @@ export default function DriverDashboard() {
   const [serviceCompleted, setServiceCompleted] = useState(false);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
-  // Zustand store for requests
-  const { addRequest, requests } = useRequestStore();
+  // Zustand store for requests and volunteers
+  const { addRequest, requests, volunteers } = useAppStore();
 
   const { toast } = useToast();
 
@@ -74,33 +74,39 @@ export default function DriverDashboard() {
 
 
   const handleRequestHelp = (id: string, name: string, type: 'garage' | 'volunteer') => {
+    const commonRequestData = {
+        driverName: 'Current User', // Placeholder name
+        vehicle: 'Tesla Model Y', // Placeholder vehicle
+        location: 'Main St & 1st Ave', // Placeholder issue
+        issue: 'Flat Tire', // Placeholder issue
+        helperId: id,
+        helperName: name,
+    };
+    
     if (type === 'garage') {
       const garage = garages.find(g => g.id === id);
       if (garage) {
-        // Add request to the shared store
         addRequest({
-          driverName: 'Current User', // Placeholder name
-          vehicle: 'Tesla Model Y', // Placeholder vehicle
-          location: 'Main St & 1st Ave', // Placeholder issue
-          issue: 'Flat Tire', // Placeholder issue
+          ...commonRequestData,
           distance: garage.distance,
-          helperId: garage.id,
-          helperName: garage.name,
           helperType: 'garage'
-        });
-
-        toast({
-          title: 'Request Sent',
-          description: `Your request has been sent to ${name}. Waiting for them to accept.`,
         });
       }
     } else {
-        // Volunteer logic can be added here similarly
-        toast({
-          title: 'Request Sent',
-          description: `Your request has been sent to ${name}.`,
-        });
+        const volunteer = volunteers.find(v => v.id === id);
+        if (volunteer) {
+            addRequest({
+                ...commonRequestData,
+                distance: volunteer.distance,
+                helperType: 'volunteer'
+            });
+        }
     }
+
+    toast({
+        title: 'Request Sent',
+        description: `Your request has been sent to ${name}. Waiting for them to accept.`,
+    });
   };
 
   const handleConfirmHelper = (id: string, name: string, type: 'garage' | 'volunteer') => {
@@ -108,7 +114,7 @@ export default function DriverDashboard() {
     // Find the request associated with this helper and mark it as Confirmed
     const request = requests.find(r => r.helperId === id && r.status === 'Accepted');
     if(request) {
-      useRequestStore.getState().updateRequestStatus(request.id, 'Confirmed');
+      useAppStore.getState().updateRequestStatus(request.id, 'Confirmed');
     }
 
     toast({
@@ -136,7 +142,7 @@ export default function DriverDashboard() {
         const request = requests.find(r => r.helperId === g.id);
         let status: 'idle' | 'Pending' | 'Accepted' | 'Confirmed' = 'idle';
         if (request) {
-            status = request.status;
+            status = request.status as any; // Cast for simplicity, handle other statuses if needed
         }
 
         if (helperAssigned && helperAssigned.id !== g.id) {
@@ -160,6 +166,36 @@ export default function DriverDashboard() {
         }
     });
   }, [requests, helperAssigned, garages]);
+  
+  const VolunteerButtons = useMemo(() => {
+    return volunteers.map((v, index) => {
+        const request = requests.find(r => r.helperId === v.id);
+        let status: 'idle' | 'Pending' | 'Accepted' | 'Confirmed' = 'idle';
+        if (request) {
+            status = request.status as any;
+        }
+
+        if (helperAssigned && helperAssigned.id !== v.id) {
+            return <Button key={v.id} size="sm" variant="outline" disabled>Unavailable</Button>;
+        }
+        if (helperAssigned && helperAssigned.id === v.id) {
+            return <Button key={v.id} size="sm" variant="success" disabled>Confirmed</Button>;
+        }
+
+        switch (status) {
+            case 'idle':
+                return <Button key={v.id} size="sm" variant="outline" onClick={() => handleRequestHelp(v.id, v.name, 'volunteer')}>Request</Button>;
+            case 'Pending':
+                return <Button key={v.id} size="sm" variant="outline" disabled>Requested...</Button>;
+            case 'Accepted':
+                return <Button key={v.id} size="sm" onClick={() => handleConfirmHelper(v.id, v.name, 'volunteer')}>Confirm</Button>;
+            case 'Confirmed':
+                return <Button key={v.id} size="sm" variant="success" disabled>Confirmed</Button>;
+            default:
+                return null;
+        }
+    });
+  }, [requests, helperAssigned, volunteers]);
 
 
   const getStatusStep = () => {
@@ -213,7 +249,7 @@ export default function DriverDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {mockVolunteers.map((v) => (
+                    {volunteers.map((v, index) => (
                       <div key={v.id}>
                         <div className="flex justify-between items-start">
                           <div>
@@ -227,10 +263,9 @@ export default function DriverDashboard() {
                               ))}
                             </div>
                           </div>
-                          {/* Placeholder for volunteer buttons for now */}
-                          <Button size="sm" variant="outline">Request</Button>
+                          {VolunteerButtons[index]}
                         </div>
-                        <Separator className="my-4" />
+                         {index < volunteers.length - 1 && <Separator className="my-4" />}
                       </div>
                     ))}
                   </CardContent>
@@ -298,5 +333,4 @@ export default function DriverDashboard() {
       </div>
     </div>
   );
-
-    
+}

@@ -9,12 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, MapPin, Wrench } from 'lucide-react';
-import { useRequestStore } from '@/lib/request-store';
+import { useAppStore } from '@/lib/request-store';
 
 export default function GarageDashboard() {
   const { toast } = useToast();
   // Get requests and actions from the Zustand store
-  const { requests, updateRequestStatus } = useRequestStore();
+  const { requests, updateRequestStatus } = useAppStore();
 
   // Filter requests to only show those relevant to the garage
   const garageRequests = requests.filter(req => req.helperType === 'garage');
