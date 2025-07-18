@@ -16,6 +16,7 @@ export default function DriverDashboard() {
   const [garages, setGarages] = useState<FindGaragesOutput | null>(null);
   const [loadingGarages, setLoadingGarages] = useState(false);
   const [helpRequested, setHelpRequested] = useState(false);
+  const [helperAssigned, setHelperAssigned] = useState(false);
   const { toast } = useToast();
 
   async function getGarages(location: string) {
@@ -35,7 +36,7 @@ export default function DriverDashboard() {
     }
   }
 
-  const handleRequestHelp = () => {
+  const handleInitialRequest = () => {
     setHelpRequested(true);
     toast({
         title: 'Request Sent',
@@ -65,6 +66,14 @@ export default function DriverDashboard() {
        getGarages('Mountain View, CA');
     }
   };
+  
+  const handleSelectHelper = (name: string) => {
+    setHelperAssigned(true);
+    toast({
+      title: 'Helper Requested',
+      description: `Your request has been sent to ${name}. They will be in touch shortly.`,
+    });
+  };
 
   return (
     <div className="grid lg:grid-cols-3 gap-8">
@@ -78,16 +87,18 @@ export default function DriverDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={handleRequestHelp} size="lg" variant="secondary" className="text-lg font-bold">
+              <Button onClick={handleInitialRequest} size="lg" variant="secondary" className="text-lg font-bold">
                 Request Help Now
               </Button>
             </CardContent>
           </Card>
         ) : (
           <>
-            <div className="grid md:grid-cols-1 gap-8">
-              <ChatWindow />
-            </div>
+            {helperAssigned && (
+              <div className="grid md:grid-cols-1 gap-8">
+                <ChatWindow />
+              </div>
+            )}
 
             <div>
               <h2 className="text-2xl font-bold mb-4 font-headline">Nearby Help</h2>
@@ -113,7 +124,7 @@ export default function DriverDashboard() {
                               ))}
                             </div>
                           </div>
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => handleSelectHelper(v.name)} disabled={helperAssigned}>
                             Request
                           </Button>
                         </div>
@@ -153,7 +164,7 @@ export default function DriverDashboard() {
                               <p className="font-semibold">{g.name}</p>
                               <p className="text-sm text-muted-foreground">{g.address}</p>
                             </div>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => handleSelectHelper(g.name)} disabled={helperAssigned}>
                               Request
                             </Button>
                           </div>
@@ -171,7 +182,7 @@ export default function DriverDashboard() {
         )}
       </div>
       <div className="lg:col-span-1">
-        {helpRequested ? <StatusTracker /> : <Card className="w-full h-[400px] lg:h-full flex items-center justify-center bg-muted/50"><p className="text-muted-foreground">Your request status will appear here.</p></Card>}
+        {helpRequested ? <StatusTracker currentStep={helperAssigned ? 1 : 0} /> : <Card className="w-full h-[400px] lg:h-full flex items-center justify-center bg-muted/50"><p className="text-muted-foreground">Your request status will appear here.</p></Card>}
       </div>
     </div>
   );
