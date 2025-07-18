@@ -7,8 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Car, Wrench, HeartHandshake } from 'lucide-react';
-import React from 'react';
+import { Car, Wrench, HeartHandshake, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 
 const roleConfig = {
   driver: {
@@ -32,6 +32,11 @@ export default function AuthPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const role = searchParams.get('role') || 'driver';
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const { icon, title, description } = roleConfig[role as keyof typeof roleConfig] || roleConfig.driver;
   
@@ -45,7 +50,6 @@ export default function AuthPage() {
       router.push(`/dashboard/${role}`);
     }
   };
-
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary">
@@ -69,40 +73,48 @@ export default function AuthPage() {
             </TabsList>
           </CardHeader>
           <CardContent>
-            <TabsContent value="login">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-login">Email</Label>
-                  <Input id="email-login" type="email" placeholder="m@example.com" required />
+            {!isClient ? (
+                <div className="flex items-center justify-center p-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-login">Password</Label>
-                  <Input id="password-login" type="password" required />
-                </div>
-                <Button onClick={handleAuthAction} className="w-full">
-                  Login
-                </Button>
-              </div>
-            </TabsContent>
-            <TabsContent value="signup">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="name-signup">Full Name</Label>
-                    <Input id="name-signup" placeholder="John Doe" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email-signup">Email</Label>
-                  <Input id="email-signup" type="email" placeholder="m@example.com" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-signup">Password</Label>
-                  <Input id="password-signup" type="password" required />
-                </div>
-                <Button onClick={handleAuthAction} className="w-full">
-                  Sign Up
-                </Button>
-              </div>
-            </TabsContent>
+            ) : (
+                <>
+                    <TabsContent value="login">
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                        <Label htmlFor="email-login">Email</Label>
+                        <Input id="email-login" type="email" placeholder="m@example.com" required />
+                        </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="password-login">Password</Label>
+                        <Input id="password-login" type="password" required />
+                        </div>
+                        <Button onClick={handleAuthAction} className="w-full">
+                        Login
+                        </Button>
+                    </div>
+                    </TabsContent>
+                    <TabsContent value="signup">
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name-signup">Full Name</Label>
+                            <Input id="name-signup" placeholder="John Doe" required />
+                        </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="email-signup">Email</Label>
+                        <Input id="email-signup" type="email" placeholder="m@example.com" required />
+                        </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="password-signup">Password</Label>
+                        <Input id="password-signup" type="password" required />
+                        </div>
+                        <Button onClick={handleAuthAction} className="w-full">
+                        Sign Up
+                        </Button>
+                    </div>
+                    </TabsContent>
+                </>
+            )}
              <div className="mt-4 text-center text-sm">
                 Change role? Go back to the{' '}
                 <Link href="/" className="underline" prefetch={false}>
