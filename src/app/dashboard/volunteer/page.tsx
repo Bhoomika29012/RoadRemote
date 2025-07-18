@@ -4,17 +4,20 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { mockHelpRequests, type HelpRequest } from '@/lib/data';
+import { mockHelpRequests, type HelpRequest, mockVolunteers } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, MapPin } from 'lucide-react';
+import { CheckCircle, MapPin, Award } from 'lucide-react';
 import Link from 'next/link';
+import { BadgeCard } from '@/components/badge-card';
+
 
 export default function VolunteerDashboard() {
   const { toast } = useToast();
   const [requests, setRequests] = useState<HelpRequest[]>(mockHelpRequests);
+  const [volunteer] = useState(mockVolunteers[0]); // Using first mock volunteer for demo
 
   const handleAccept = (id: string, driverName: string) => {
     setRequests(prevRequests =>
@@ -46,7 +49,8 @@ export default function VolunteerDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="grid lg:grid-cols-3 gap-8">
+     <div className="lg:col-span-2 space-y-8">
       <Alert>
         <AlertTitle>Welcome, Volunteer!</AlertTitle>
         <AlertDescription>
@@ -104,6 +108,35 @@ export default function VolunteerDashboard() {
              </Card>
            )}
         </div>
+      </div>
+     </div>
+      <div className="lg:col-span-1 space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Stats</CardTitle>
+            <CardDescription>Your contributions to the community.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
+                <div className="flex items-center gap-3">
+                    <Award className="h-6 w-6 text-primary" />
+                    <span className="font-semibold">Your Points</span>
+                </div>
+                <span className="text-2xl font-bold text-primary">{volunteer.points}</span>
+            </div>
+            <div>
+                <h3 className="font-semibold mb-4">Your Badges</h3>
+                <div className="space-y-4">
+                  {volunteer.badges.map(badge => (
+                     <BadgeCard key={badge.id} badge={badge} />
+                  ))}
+                   {volunteer.badges.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Complete jobs to earn badges!</p>
+                   )}
+                </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

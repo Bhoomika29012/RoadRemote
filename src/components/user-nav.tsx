@@ -10,8 +10,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
+import { Award } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { mockVolunteers } from '@/lib/data';
 
 export function UserNav() {
+  const pathname = usePathname();
+  const isVolunteer = pathname.includes('volunteer');
+  const volunteerPoints = isVolunteer ? mockVolunteers[0].points : 0; // Demo points
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,6 +38,15 @@ export function UserNav() {
             </p>
           </div>
         </DropdownMenuLabel>
+        {isVolunteer && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="focus:bg-transparent cursor-default">
+              <Award className="mr-2 h-4 w-4 text-primary" />
+              <span>{volunteerPoints} Points</span>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>Profile</DropdownMenuItem>

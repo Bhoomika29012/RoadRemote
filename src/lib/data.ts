@@ -9,12 +9,21 @@ export interface HelpRequest {
   distance: number;
 }
 
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 export interface Volunteer {
   id: string;
   name: string;
   skills: string[];
   tools: string[];
   distance: number;
+  points: number;
+  badges: Badge[];
 }
 
 export interface Garage {
@@ -23,6 +32,15 @@ export interface Garage {
   services: string[];
   distance: number;
 }
+
+import { Shield, Star, Trophy } from 'lucide-react';
+
+export const mockBadges: Badge[] = [
+    { id: 'badge-1', name: 'First Responder', description: 'Completed your first request.', icon: Shield },
+    { id: 'badge-2', name: 'Good Samaritan', description: 'Completed 5 requests.', icon: Star },
+    { id: 'badge-3', name: 'Roadside Hero', description: 'Completed 10 requests.', icon: Trophy },
+];
+
 
 export const mockHelpRequests: HelpRequest[] = [
   {
@@ -58,8 +76,24 @@ export const mockHelpRequests: HelpRequest[] = [
 ];
 
 export const mockVolunteers: Volunteer[] = [
-    { id: 'vol-1', name: 'John D.', skills: ['Tire Change', 'Jump Start'], tools: ['Jack', 'Jumper Cables'], distance: 1.5 },
-    { id: 'vol-2', name: 'Sarah P.', skills: ['Fuel Delivery'], tools: ['Gas Can'], distance: 3.2 },
+    { 
+        id: 'vol-1', 
+        name: 'John D.', 
+        skills: ['Tire Change', 'Jump Start'], 
+        tools: ['Jack', 'Jumper Cables'], 
+        distance: 1.5,
+        points: 150,
+        badges: [mockBadges[0], mockBadges[1]],
+    },
+    { 
+        id: 'vol-2', 
+        name: 'Sarah P.', 
+        skills: ['Fuel Delivery'], 
+        tools: ['Gas Can'], 
+        distance: 3.2,
+        points: 50,
+        badges: [mockBadges[0]],
+    },
 ];
 
 export const mockGarages: Garage[] = [
