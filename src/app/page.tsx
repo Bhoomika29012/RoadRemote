@@ -18,9 +18,6 @@ export default function Home() {
           <Link href="#roles" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
             Get Started
           </Link>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/auth?role=driver" prefetch={false}>Login</Link>
-          </Button>
         </nav>
       </header>
 
