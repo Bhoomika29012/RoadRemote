@@ -53,10 +53,12 @@ export default function AuthPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary">
-       <Link href="/" className="absolute top-4 left-4 flex items-center text-lg font-bold" prefetch={false}>
+       <header className="px-4 lg:px-6 h-14 flex items-center bg-background/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 border-b">
+         <Link href="/" className="flex items-center justify-center" prefetch={false}>
           <Car className="h-6 w-6 text-primary" />
-          <span className="ml-2">RoadRemote</span>
+          <span className="ml-2 text-xl font-bold font-headline">RoadRemote</span>
         </Link>
+       </header>
       <Tabs defaultValue="login" className="w-full max-w-md mx-4">
         <Card>
           <CardHeader className="text-center">
