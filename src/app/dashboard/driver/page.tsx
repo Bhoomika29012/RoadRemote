@@ -43,7 +43,7 @@ export default function DriverDashboard() {
         addRequest({
           driverName: 'Current User', // Placeholder name
           vehicle: 'Tesla Model Y', // Placeholder vehicle
-          location: 'Main St & 1st Ave', // Placeholder location
+          location: 'Main St & 1st Ave', // Placeholder issue
           issue: 'Flat Tire', // Placeholder issue
           distance: garage.distance,
           helperId: garage.id,
