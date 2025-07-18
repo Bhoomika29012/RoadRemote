@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChatWindow } from '@/components/chat-window';
 import { HeartHandshake, Wrench } from 'lucide-react';
-import { mockVolunteers, mockGarages } from '@/lib/data';
+import { mockVolunteers, Garage } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useState, useEffect, useMemo } from 'react';
@@ -13,9 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { StatusTracker } from '@/components/status-tracker';
 import { AiChatbot } from '@/components/ai-chatbot';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { findGarages } from '@/ai/flows/find-garages-flow';
 
 export default function DriverDashboard() {
   const [loadingGarages, setLoadingGarages] = useState(false);
+  const [garages, setGarages] = useState<Garage[]>([]);
   const [helpRequested, setHelpRequested] = useState(false);
   const [helperAssigned, setHelperAssigned] = useState<{ id: string; name: string, type: 'garage' | 'volunteer' } | null>(null);
   const [serviceCompleted, setServiceCompleted] = useState(false);
@@ -27,17 +29,53 @@ export default function DriverDashboard() {
   const { toast } = useToast();
 
   const handleInitialRequest = () => {
+    setLoadingGarages(true);
     setHelpRequested(true);
-    // In a real app, you might fetch garages here, but for now, we just show them.
     toast({
-        title: 'Request Sent',
-        description: 'Finding nearby help for you.',
+        title: 'Getting your location...',
+        description: 'Please allow location access to find help.',
     });
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        toast({
+          title: 'Location Found!',
+          description: 'Searching for nearby garages...',
+        });
+        try {
+          const result = await findGarages({ location: `${latitude}, ${longitude}` });
+          // Ensure garages have a unique ID for key prop and request tracking
+          const garagesWithIds = result.garages.map((g, i) => ({ ...g, id: `gar-${i}`, distance: Math.random() * 10 }));
+          setGarages(garagesWithIds);
+        } catch (error) {
+          console.error('Error fetching garages:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not fetch nearby garages. Please try again.',
+          });
+        } finally {
+          setLoadingGarages(false);
+        }
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Location Error',
+          description: 'Could not get your location. Please enable location services and try again.',
+        });
+        setLoadingGarages(false);
+        setHelpRequested(false); // Go back to initial state
+      }
+    );
   };
+
 
   const handleRequestHelp = (id: string, name: string, type: 'garage' | 'volunteer') => {
     if (type === 'garage') {
-      const garage = mockGarages.find(g => g.id === id);
+      const garage = garages.find(g => g.id === id);
       if (garage) {
         // Add request to the shared store
         addRequest({
@@ -94,7 +132,7 @@ export default function DriverDashboard() {
 
   // Memoize button components to avoid re-renders
   const GarageButtons = useMemo(() => {
-    return mockGarages.map((g, index) => {
+    return garages.map((g, index) => {
         const request = requests.find(r => r.helperId === g.id);
         let status: 'idle' | 'Pending' | 'Accepted' | 'Confirmed' = 'idle';
         if (request) {
@@ -121,7 +159,7 @@ export default function DriverDashboard() {
                 return null;
         }
     });
-  }, [requests, helperAssigned]);
+  }, [requests, helperAssigned, garages]);
 
 
   const getStatusStep = () => {
@@ -180,7 +218,7 @@ export default function DriverDashboard() {
                         <div className="flex justify-between items-start">
                           <div>
                             <p className="font-semibold">{v.name}</p>
-                            <p className="text-sm text-muted-foreground">{v.distance} miles away</p>
+                            <p className="text-sm text-muted-foreground">{v.distance.toFixed(1)} miles away</p>
                             <div className="flex flex-wrap gap-1 mt-2">
                               {v.skills.map((s) => (
                                 <Badge key={s} variant="secondary">
@@ -206,27 +244,37 @@ export default function DriverDashboard() {
                   <CardContent className="space-y-4">
                     {loadingGarages && (
                       <>
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                           <Skeleton className="h-8 w-20" />
                         </div>
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
+                        <Separator className="my-4" />
+                        <div className="flex items-center justify-between">
+                           <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                           <Skeleton className="h-8 w-20" />
                         </div>
                       </>
                     )}
+                    {!loadingGarages && garages.length === 0 && (
+                        <p className="text-muted-foreground text-center">No garages found nearby.</p>
+                    )}
                     {!loadingGarages &&
-                      mockGarages.map((g, index) => (
+                      garages.map((g, index) => (
                         <div key={g.id}>
                           <div className="flex justify-between items-start">
                             <div>
                               <p className="font-semibold">{g.name}</p>
-                              <p className="text-sm text-muted-foreground">{g.distance} miles away</p>
+                              <p className="text-sm text-muted-foreground">{g.address}</p>
                             </div>
                             {GarageButtons[index]}
                           </div>
-                          {index < mockGarages.length - 1 && <Separator className="my-4" />}
+                          {index < garages.length - 1 && <Separator className="my-4" />}
                         </div>
                       ))}
                   </CardContent>
@@ -250,4 +298,5 @@ export default function DriverDashboard() {
       </div>
     </div>
   );
-}
+
+    

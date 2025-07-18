@@ -33,8 +33,9 @@ export interface Volunteer {
 export interface Garage {
   id:string;
   name: string;
-  services: string[];
+  address: string;
   distance: number;
+  services?: string[]; // Made optional as it's not in the AI output
 }
 
 import { Shield, Star, Trophy } from 'lucide-react';
@@ -72,7 +73,6 @@ export const mockVolunteers: Volunteer[] = [
     },
 ];
 
-export const mockGarages: Garage[] = [
-    { id: 'gar-1', name: 'City Auto Repair', services: ['Towing', 'Engine Diagnostics'], distance: 5.5 },
-    { id: 'gar-2', name: 'Express Mechanics', services: ['Tire Repair', 'Battery Replacement'], distance: 6.1 },
-];
+// This is now just a fallback or for development. The live data comes from the AI.
+export const mockGarages: Garage[] = [];
+    
