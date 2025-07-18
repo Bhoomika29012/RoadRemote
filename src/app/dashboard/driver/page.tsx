@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { StatusTracker } from '@/components/status-tracker';
 import { AiChatbot } from '@/components/ai-chatbot';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RatingDialog } from '@/components/rating-dialog';
 
 type RequestStatus = 'idle' | 'requested' | 'available' | 'confirmed';
 
@@ -20,8 +21,10 @@ export default function DriverDashboard() {
   const [garages, setGarages] = useState<FindGaragesOutput | null>(null);
   const [loadingGarages, setLoadingGarages] = useState(false);
   const [helpRequested, setHelpRequested] = useState(false);
-  const [helperAssigned, setHelperAssigned] = useState<string | null>(null);
+  const [helperAssigned, setHelperAssigned] = useState<{ id: string; name: string } | null>(null);
   const [requestStatuses, setRequestStatuses] = useState<Record<string, RequestStatus>>({});
+  const [serviceCompleted, setServiceCompleted] = useState(false);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
   const { toast } = useToast();
 
@@ -84,8 +87,10 @@ export default function DriverDashboard() {
       description: `Your request has been sent to ${name}.`,
     });
 
+    // Simulate helper becoming available
     const delay = Math.random() * (7000 - 3000) + 3000;
     setTimeout(() => {
+      // Only set to available if no one else has been confirmed
       if (!helperAssigned) {
          setRequestStatuses(prev => ({ ...prev, [id]: 'available' }));
       }
@@ -93,18 +98,31 @@ export default function DriverDashboard() {
   };
 
   const handleConfirmHelper = (id: string, name: string) => {
-    setHelperAssigned(id);
+    setHelperAssigned({ id, name });
     setRequestStatuses(prev => ({ ...prev, [id]: 'confirmed' }));
     toast({
       title: 'Helper Confirmed!',
       description: `You are now connected with ${name}. They will be in touch shortly.`,
     });
+    
+    // Simulate service completion
+    setTimeout(() => {
+        setServiceCompleted(true);
+    }, 10000); // 10 seconds for demo
   };
   
+  const handleRatingSubmit = () => {
+    setRatingSubmitted(true);
+     toast({
+      title: 'Rating Submitted!',
+      description: `Thank you for rating ${helperAssigned?.name}.`,
+    });
+  }
+
   const getButton = (id: string, name: string) => {
     const status = requestStatuses[id] || 'idle';
     
-    if (helperAssigned && helperAssigned !== id) {
+    if (helperAssigned && helperAssigned.id !== id) {
        return <Button size="sm" variant="outline" disabled>Unavailable</Button>;
     }
 
@@ -121,6 +139,14 @@ export default function DriverDashboard() {
         return null;
     }
   };
+
+  const getStatusStep = () => {
+    if (ratingSubmitted) return 5;
+    if (serviceCompleted) return 4;
+    if (helperAssigned) return 2; // Steps 2 & 3 are covered by this
+    if (helpRequested) return 1;
+    return 0;
+  }
 
 
   if (!helpRequested) {
@@ -150,7 +176,7 @@ export default function DriverDashboard() {
             <TabsTrigger value="ai-chat">AI Assistant</TabsTrigger>
           </TabsList>
           <TabsContent value="find-help">
-             {helperAssigned && (
+             {helperAssigned && !serviceCompleted && (
                 <div className="my-6">
                     <ChatWindow />
                 </div>
@@ -236,7 +262,18 @@ export default function DriverDashboard() {
         </Tabs>
       </div>
       <div className="lg:col-span-1">
-        <StatusTracker currentStep={helperAssigned ? 2 : 1} />
+        <StatusTracker 
+            currentStep={getStatusStep()} 
+            helperName={helperAssigned?.name}
+            onRateHelper={() => {
+                // This function will be called by a button in StatusTracker
+                // It can open a dialog. For now we will use a toast
+                // to show it's working
+                console.log("Rating helper");
+            }}
+            serviceCompleted={serviceCompleted}
+            ratingSubmitted={ratingSubmitted}
+        />
       </div>
     </div>
   );
