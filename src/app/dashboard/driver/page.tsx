@@ -2,103 +2,77 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChatWindow } from '@/components/chat-window';
-import { HeartHandshake, Wrench, Bot } from 'lucide-react';
-import { mockVolunteers } from '@/lib/data';
+import { HeartHandshake, Wrench } from 'lucide-react';
+import { mockVolunteers, mockGarages } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useState, useEffect } from 'react';
-import { findGarages, FindGaragesOutput } from '@/ai/flows/find-garages-flow';
+import { useState, useEffect, useMemo } from 'react';
+import { useRequestStore } from '@/lib/request-store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { StatusTracker } from '@/components/status-tracker';
 import { AiChatbot } from '@/components/ai-chatbot';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-type RequestStatus = 'idle' | 'requested' | 'available' | 'confirmed';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function DriverDashboard() {
-  const [garages, setGarages] = useState<FindGaragesOutput | null>(null);
   const [loadingGarages, setLoadingGarages] = useState(false);
   const [helpRequested, setHelpRequested] = useState(false);
-  const [helperAssigned, setHelperAssigned] = useState<{ id: string; name: string } | null>(null);
-  const [requestStatuses, setRequestStatuses] = useState<Record<string, RequestStatus>>({});
+  const [helperAssigned, setHelperAssigned] = useState<{ id: string; name: string, type: 'garage' | 'volunteer' } | null>(null);
   const [serviceCompleted, setServiceCompleted] = useState(false);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
+  // Zustand store for requests
+  const { addRequest, requests } = useRequestStore();
+
   const { toast } = useToast();
-
-  const fetchGarages = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          getGarages(`${latitude}, ${longitude}`);
-        },
-        () => {
-          toast({
-            variant: 'destructive',
-            title: 'Location Error',
-            description: 'Could not get your location. Please enable location services.',
-          });
-          getGarages('Mountain View, CA');
-        }
-      );
-    } else {
-       toast({
-        variant: 'destructive',
-        title: 'Location Error',
-        description: 'Geolocation is not supported by this browser.',
-      });
-       getGarages('Mountain View, CA');
-    }
-  }
-
-  async function getGarages(location: string) {
-    try {
-      setLoadingGarages(true);
-      const result = await findGarages({ location });
-      setGarages(result);
-    } catch (error) {
-      console.error('Error finding garages:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Could not fetch nearby garages. Please try again.',
-      });
-    } finally {
-      setLoadingGarages(false);
-    }
-  }
 
   const handleInitialRequest = () => {
     setHelpRequested(true);
-    fetchGarages();
+    // In a real app, you might fetch garages here, but for now, we just show them.
     toast({
         title: 'Request Sent',
         description: 'Finding nearby help for you.',
     });
   };
 
-  const handleRequestHelp = (id: string, name: string) => {
-    setRequestStatuses(prev => ({ ...prev, [id]: 'requested' }));
-    toast({
-      title: 'Request Sent',
-      description: `Your request has been sent to ${name}.`,
-    });
+  const handleRequestHelp = (id: string, name: string, type: 'garage' | 'volunteer') => {
+    if (type === 'garage') {
+      const garage = mockGarages.find(g => g.id === id);
+      if (garage) {
+        // Add request to the shared store
+        addRequest({
+          driverName: 'Current User', // Placeholder name
+          vehicle: 'Tesla Model Y', // Placeholder vehicle
+          location: 'Main St & 1st Ave', // Placeholder location
+          issue: 'Flat Tire', // Placeholder issue
+          distance: garage.distance,
+          helperId: garage.id,
+          helperName: garage.name,
+          helperType: 'garage'
+        });
 
-    // Simulate helper becoming available
-    const delay = Math.random() * (7000 - 3000) + 3000;
-    setTimeout(() => {
-      // Only set to available if no one else has been confirmed
-      if (!helperAssigned) {
-         setRequestStatuses(prev => ({ ...prev, [id]: 'available' }));
+        toast({
+          title: 'Request Sent',
+          description: `Your request has been sent to ${name}. Waiting for them to accept.`,
+        });
       }
-    }, delay);
+    } else {
+        // Volunteer logic can be added here similarly
+        toast({
+          title: 'Request Sent',
+          description: `Your request has been sent to ${name}.`,
+        });
+    }
   };
 
-  const handleConfirmHelper = (id: string, name: string) => {
-    setHelperAssigned({ id, name });
-    setRequestStatuses(prev => ({ ...prev, [id]: 'confirmed' }));
+  const handleConfirmHelper = (id: string, name: string, type: 'garage' | 'volunteer') => {
+    setHelperAssigned({ id, name, type });
+    // Find the request associated with this helper and mark it as Confirmed
+    const request = requests.find(r => r.helperId === id && r.status === 'Accepted');
+    if(request) {
+      useRequestStore.getState().updateRequestStatus(request.id, 'Confirmed');
+    }
+
     toast({
       title: 'Helper Confirmed!',
       description: `You are now connected with ${name}. They will be in touch shortly.`,
@@ -118,40 +92,46 @@ export default function DriverDashboard() {
     });
   }
 
-  const getButton = (id: string, name: string) => {
-    const status = requestStatuses[id] || 'idle';
-    
-    if (helperAssigned && helperAssigned.id !== id) {
-       return <Button size="sm" variant="outline" disabled>Unavailable</Button>;
-    }
-     if (helperAssigned && helperAssigned.id === id) {
-      return <Button size="sm" variant="success" disabled>Confirmed</Button>;
-    }
+  // Memoize button components to avoid re-renders
+  const GarageButtons = useMemo(() => {
+    return mockGarages.map((g, index) => {
+        const request = requests.find(r => r.helperId === g.id);
+        let status: 'idle' | 'Pending' | 'Accepted' | 'Confirmed' = 'idle';
+        if (request) {
+            status = request.status;
+        }
 
+        if (helperAssigned && helperAssigned.id !== g.id) {
+            return <Button key={g.id} size="sm" variant="outline" disabled>Unavailable</Button>;
+        }
+        if (helperAssigned && helperAssigned.id === g.id) {
+            return <Button key={g.id} size="sm" variant="success" disabled>Confirmed</Button>;
+        }
 
-    switch (status) {
-      case 'idle':
-        return <Button size="sm" variant="outline" onClick={() => handleRequestHelp(id, name)}>Request</Button>;
-      case 'requested':
-        return <Button size="sm" variant="outline" disabled>Requested...</Button>;
-      case 'available':
-        return <Button size="sm" onClick={() => handleConfirmHelper(id, name)}>Accept</Button>;
-      case 'confirmed':
-        return <Button size="sm" variant="success" disabled>Confirmed</Button>;
-      default:
-        return null;
-    }
-  };
+        switch (status) {
+            case 'idle':
+                return <Button key={g.id} size="sm" variant="outline" onClick={() => handleRequestHelp(g.id, g.name, 'garage')}>Request</Button>;
+            case 'Pending':
+                return <Button key={g.id} size="sm" variant="outline" disabled>Requested...</Button>;
+            case 'Accepted':
+                return <Button key={g.id} size="sm" onClick={() => handleConfirmHelper(g.id, g.name, 'garage')}>Confirm</Button>;
+            case 'Confirmed':
+                return <Button key={g.id} size="sm" variant="success" disabled>Confirmed</Button>;
+            default:
+                return null;
+        }
+    });
+  }, [requests, helperAssigned]);
+
 
   const getStatusStep = () => {
     if (ratingSubmitted) return 6;
     if (serviceCompleted) return 5;
-    if (helperAssigned) return 3; // Covers assigned and on the way
-    if (Object.values(requestStatuses).some(s => s === 'requested' || s === 'available')) return 2;
+    if (helperAssigned) return 3;
+    if (requests.some(r => r.status === 'Pending' || r.status === 'Accepted')) return 2;
     if (helpRequested) return 1;
     return 0;
   }
-
 
   if (!helpRequested) {
     return (
@@ -209,7 +189,8 @@ export default function DriverDashboard() {
                               ))}
                             </div>
                           </div>
-                         {getButton(v.id, v.name)}
+                          {/* Placeholder for volunteer buttons for now */}
+                          <Button size="sm" variant="outline">Request</Button>
                         </div>
                         <Separator className="my-4" />
                       </div>
@@ -233,28 +214,21 @@ export default function DriverDashboard() {
                           <Skeleton className="h-4 w-3/4" />
                           <Skeleton className="h-3 w-1/2" />
                         </div>
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
-                        </div>
                       </>
                     )}
                     {!loadingGarages &&
-                      garages?.garages.map((g, index) => (
-                        <div key={index}>
+                      mockGarages.map((g, index) => (
+                        <div key={g.id}>
                           <div className="flex justify-between items-start">
                             <div>
                               <p className="font-semibold">{g.name}</p>
-                              <p className="text-sm text-muted-foreground">{g.address}</p>
+                              <p className="text-sm text-muted-foreground">{g.distance} miles away</p>
                             </div>
-                            {getButton(`garage-${index}`, g.name)}
+                            {GarageButtons[index]}
                           </div>
-                          {index < (garages.garages?.length ?? 0) - 1 && <Separator className="my-4" />}
+                          {index < mockGarages.length - 1 && <Separator className="my-4" />}
                         </div>
                       ))}
-                    {!loadingGarages && garages?.garages.length === 0 && (
-                      <p className="text-sm text-muted-foreground">No garages found nearby.</p>
-                    )}
                   </CardContent>
                 </Card>
               </div>

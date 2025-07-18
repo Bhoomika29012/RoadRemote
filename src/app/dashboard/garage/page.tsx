@@ -1,25 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { mockHelpRequests, type HelpRequest } from '@/lib/data';
+import type { HelpRequest } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, MapPin, Wrench } from 'lucide-react';
+import { useRequestStore } from '@/lib/request-store';
 
 export default function GarageDashboard() {
   const { toast } = useToast();
-  const [requests, setRequests] = useState<HelpRequest[]>(mockHelpRequests);
+  // Get requests and actions from the Zustand store
+  const { requests, updateRequestStatus } = useRequestStore();
+
+  // Filter requests to only show those relevant to the garage
+  const garageRequests = requests.filter(req => req.helperType === 'garage');
 
   const handleAccept = (id: string, driverName: string) => {
-    setRequests(prevRequests =>
-      prevRequests.map(req =>
-        req.id === id ? { ...req, status: 'Accepted' } : req
-      )
-    );
+    // Update the status in the central store
+    updateRequestStatus(id, 'Accepted');
     toast({
       title: (
         <div className="flex items-center">
@@ -27,16 +29,13 @@ export default function GarageDashboard() {
           <span>Job Accepted!</span>
         </div>
       ),
-      description: `You are assigned to assist ${driverName}. The driver has been notified.`,
+      description: `You are assigned to assist ${driverName}. The driver has been notified to confirm.`,
     });
   };
 
   const handleComplete = (id: string) => {
-    setRequests(prevRequests =>
-      prevRequests.map(req =>
-        req.id === id ? { ...req, status: 'Completed' } : req
-      )
-    );
+    // Update the status in the central store
+    updateRequestStatus(id, 'Completed');
     toast({
       title: (
         <div className="flex items-center">
@@ -54,15 +53,14 @@ export default function GarageDashboard() {
             return <Badge variant="destructive">{status}</Badge>;
         case 'Accepted':
             return <Badge variant="default">Accepted</Badge>;
-        case 'In-Progress':
-            return <Badge variant="secondary">{status}</Badge>;
+        case 'Confirmed':
+            return <Badge variant="secondary">Confirmed by Driver</Badge>;
         case 'Completed':
             return <Badge variant="success">{status}</Badge>;
         default:
             return <Badge>{status}</Badge>
     }
   }
-
 
   return (
     <div className="space-y-8">
@@ -82,7 +80,7 @@ export default function GarageDashboard() {
       <div>
         <h2 className="text-2xl font-bold mb-4 font-headline">Nearby Job Requests</h2>
         <div className="space-y-4">
-          {requests.map((req) => (
+          {garageRequests.map((req) => (
             <Card key={req.id}>
               <CardHeader className="flex flex-row justify-between items-start">
                   <div>
@@ -103,7 +101,7 @@ export default function GarageDashboard() {
                         <Button 
                             variant="outline" 
                             onClick={() => handleComplete(req.id)}
-                            disabled={req.status === 'Completed'}
+                            disabled={req.status === 'Completed' || req.status === 'Pending'}
                         >
                             Mark Completed
                         </Button>
@@ -118,7 +116,7 @@ export default function GarageDashboard() {
               </CardContent>
             </Card>
           ))}
-           {requests.length === 0 && (
+           {garageRequests.length === 0 && (
              <Card className="text-center p-8">
                 <p className="text-muted-foreground">No active requests in your area. Check back soon!</p>
              </Card>

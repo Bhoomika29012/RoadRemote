@@ -4,9 +4,13 @@ export interface HelpRequest {
   vehicle: string;
   location: string;
   issue: string;
-  status: 'Pending' | 'Accepted' | 'In-Progress' | 'Completed';
+  status: 'Pending' | 'Accepted' | 'Confirmed' | 'In-Progress' | 'Completed';
   timestamp: string;
   distance: number;
+  // New fields to link request to a helper
+  helperId?: string;
+  helperName?: string;
+  helperType?: 'garage' | 'volunteer';
 }
 
 export interface Badge {
@@ -43,36 +47,8 @@ export const mockBadges: Badge[] = [
 
 
 export const mockHelpRequests: HelpRequest[] = [
-  {
-    id: 'req-001',
-    driverName: 'Alice Johnson',
-    vehicle: 'Toyota Camry',
-    location: 'I-95, Exit 4B',
-    issue: 'Flat Tire',
-    status: 'Pending',
-    timestamp: '5m ago',
-    distance: 2.5
-  },
-  {
-    id: 'req-002',
-    driverName: 'Bob Williams',
-    vehicle: 'Ford F-150',
-    location: 'Main St & 1st Ave',
-    issue: 'Dead Battery',
-    status: 'Pending',
-    timestamp: '12m ago',
-    distance: 4.1,
-  },
-  {
-    id: 'req-003',
-    driverName: 'Charlie Brown',
-    vehicle: 'Honda Civic',
-    location: 'Near Central Park',
-    issue: 'Out of Gas',
-    status: 'Pending',
-    timestamp: '25m ago',
-    distance: 7.8
-  },
+  // This is now just initial data, the store will manage the live requests.
+  // We start with an empty list for the garage and let the driver create them.
 ];
 
 export const mockVolunteers: Volunteer[] = [
