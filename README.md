@@ -54,9 +54,7 @@ RoadRemote bridges the gap between **drivers in distress** and **helpers nearby*
 
 
 🚀 Installation
-bash
-Copy
-Edit
+
 # Clone the repository
 git clone https://github.com/ThrupthiBhandary/RoadRemote.git
 cd RoadRemote
@@ -64,7 +62,7 @@ cd RoadRemote
 # Install dependencies
 npm install
 
-# Add Firebase config in `.env.local` file
+
 
 # Run development server
 npm run dev
