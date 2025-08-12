@@ -1,59 +1,45 @@
-🚗 RoadRemote – Roadside Rescue Platform
-📖 Introduction
-RoadRemote is a community-powered roadside emergency assistance platform that connects stranded drivers with nearby garages and volunteers.
-It makes roadside emergencies safer, smarter, and simpler through location-based help, AI guidance, and community collaboration.
+# 🚗 RoadRemote – Roadside Rescue Platform
 
-🎯 Objective
-To provide quick, reliable, and accessible roadside help for everyone — not just those with premium insurance.
-RoadRemote bridges the gap between drivers in distress and helpers nearby, ensuring help arrives as fast as possible.
+## 📖 Introduction
+RoadRemote is a **community-powered roadside emergency assistance platform** that connects stranded drivers with nearby garages and volunteers.  
+It makes roadside emergencies **safer, smarter, and simpler** through location-based help, AI guidance, and community collaboration.
 
-✨ Features
-📍 Assistance Requests – Drivers can request immediate roadside help.
+---
 
-🛠 Role Selection – Choose to sign in as a Driver, Garage, or Volunteer.
+## 🎯 Objective
+To provide **quick, reliable, and accessible** roadside help for everyone — not just those with premium insurance.  
+RoadRemote bridges the gap between **drivers in distress** and **helpers nearby**, ensuring help arrives as fast as possible.
 
-🔍 Find Nearby Help – View available volunteers and garages based on your location.
+---
 
-🗓 Volunteer Availability – Volunteers can set their available hours, skills, and tools.
+## ✨ Features
+- 📍 **Assistance Requests** – Drivers can request immediate roadside help.
+- 🛠 **Role Selection** – Choose to sign in as a Driver, Garage, or Volunteer.
+- 🔍 **Find Nearby Help** – View available volunteers and garages based on your location.
+- 🗓 **Volunteer Availability** – Volunteers can set their available hours, skills, and tools.
+- 📊 **Real-Time Request Tracking** – Step-by-step status updates from request initiation to completion.
+- 🤖 **AI Assistant** – Guided support for drivers during emergencies.
 
-📊 Real-Time Request Tracking – Step-by-step status updates from request initiation to completion.
+---
 
-🤖 AI Assistant – Guided support for drivers during emergencies.
+## 🛠 Tech Stack
+- **Frontend:** Next.js, React  
+- **Styling:** Tailwind CSS  
+- **Backend:** Firebase Cloud Functions  
+- **Database:** Firebase Realtime Database  
+- **Authentication:** Firebase Authentication (Role-based)  
+- **AI Integration:** Gemini API  
+- **Location Services:** Google Maps API  
 
-🛠 Tech Stack
-Frontend: Next.js, React
+---
 
-Styling: Tailwind CSS
+## 🏗 How We Built It
+- Designed a **clean and responsive UI** with Next.js + Tailwind CSS.
+- Implemented **role-based authentication** using Firebase Auth.
+- Managed user availability, service requests, and request status with Firebase Realtime Database.
+- Integrated **AI chatbot** to guide users during emergencies.
+- Used Google Maps API for **location-based volunteer/garage discovery**.
 
-Backend: Firebase Cloud Functions
-
-Database: Firebase Realtime Database
-
-Authentication: Firebase Authentication (Role-based)
-
-AI Integration: Gemini API
-
-Location Services: Google Maps API
-
-🏗 How We Built It
-Designed a clean and responsive UI with Next.js + Tailwind CSS.
-
-Implemented role-based authentication using Firebase Auth.
-
-Managed user availability, service requests, and request status with Firebase Realtime Database.
-
-Integrated AI chatbot to guide users during emergencies.
-
-Used Google Maps API for location-based volunteer/garage discovery.
-
-🚧 Challenges
-Implementing accurate role-based dashboards.
-
-Matching real-time location data with available helpers.
-
-Maintaining smooth status transitions for service requests.
-
-Designing an intuitive multi-role interface.
 
 
 📸 Screenshots
